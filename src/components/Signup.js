@@ -1,10 +1,35 @@
-import React,{ useRef} from 'react'
-import { Form, Button, Card } from "react-bootstrap"
+import React,{ useState, useRef} from 'react'
+import { Form, Button, Card, Alert } from "react-bootstrap"
+import { useAuth } from "../contexts/AuthContext"
 
 export default function Signup() {
     const emailRef = useRef()
     const passwordRef = useRef()
     const passwordConfirmRef = useRef()
+    const { signup } = useAuth()
+    // const { signup, currentUser } = useAuth()
+    const [ error, setError ] = useState("")
+    const [ loading, setLoading ] = useState(false)
+
+
+    async function handleSubmit(e) {
+        e.preventDefault()
+
+        if(passwordRef.current.value !== passwordConfirmRef.current.value){
+            return setError("パスワードが一致しません")
+        }
+
+        try{
+            setError("")
+            setLoading(true)
+            await signup(emailRef.current.value, passwordRef.current.value)
+        }catch{
+            setError("アカウントが作れませんでした")
+        }
+
+        setLoading(false)
+
+    }
 
     
     return (
@@ -12,7 +37,9 @@ export default function Signup() {
             <Card>
                 <Card.Body>
                     <h2 className="text-center mb-4">ログイン</h2>
-                    <Form>
+                    {/* {currentUser.email} */}
+                    {error && <Alert variant="danger">{error}</Alert>}
+                    <Form onSubmit={handleSubmit}>
                         <Form.Group id="email">
                             <Form.Label>Email</Form.Label>
                             <Form.Control type="email" ref={emailRef} required />
@@ -25,7 +52,7 @@ export default function Signup() {
                             <Form.Label>パスワード（確認用）</Form.Label>
                             <Form.Control type="password" ref={passwordConfirmRef} required />
                         </Form.Group>
-                        <Button className="w-100 mt-4" type="submit">登録する</Button>
+                        <Button disabled={loading} className="w-100 mt-4" type="submit">登録する</Button>
                     </Form>
                 </Card.Body>
             </Card>
