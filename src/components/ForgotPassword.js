@@ -1,27 +1,29 @@
 import React,{ useState, useRef} from 'react'
 import { Form, Button, Card, Alert } from "react-bootstrap"
 import { useAuth } from "../contexts/AuthContext"
-import { Link, useHistory } from "react-router-dom"
+import { Link } from "react-router-dom"
 
 export default function ForgotPassword() {
     const emailRef = useRef()
-    const { login } = useAuth()
+    const { resetPassword } = useAuth()
     // const { signup, currentUser } = useAuth()
     const [ error, setError ] = useState("")
+    const [ message, setMessage ] = useState("")
     const [ loading, setLoading ] = useState(false)
-    const history = useHistory()
 
 
     async function handleSubmit(e) {
         e.preventDefault()
 
         try{
+            setMessage("")
             setError("")
             setLoading(true)
+            await resetPassword(emailRef.current.value)
             // await login(emailRef.current.value, passwordRef.current.value)
-            history.push("/")
+            setMessage("メールを送信しました")
         }catch{
-            setError("ログインに失敗しました")
+            setError("パスワードのリセットに失敗しました")
         }
 
         setLoading(false)
@@ -36,6 +38,7 @@ export default function ForgotPassword() {
                     <h2 className="text-center mb-4">パスワードをリセット</h2>
                     {/* {currentUser.email} */}
                     {error && <Alert variant="danger">{error}</Alert>}
+                    {message && <Alert variant="success">{message}</Alert>}
                     <Form onSubmit={handleSubmit}>
                         <Form.Group id="email">
                             <Form.Label>Email</Form.Label>
